@@ -8,8 +8,7 @@ OchiMikanRails requires [Ruby on Rails](http://rubyonrails.org) 4.1.
 secrets.yml
 -----------
 
-`config/secrets.yml` is remained in the repository so that the application can run out of the box.
-But you should use different keys.
+Although `config/secrets.yml` is remained in the repository so that the application can run out of the box, you should use different keys for your application.
 
 License
 -------
