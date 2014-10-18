@@ -35,8 +35,8 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 
 # dependencies for Heroku
 group :production do
-  gem 'pg'
-  gem 'rails_12factor'
+  gem 'pg',             '0.17.1'
+  gem 'rails_12factor', '0.0.3'
 end
 
 # dependencies for development
