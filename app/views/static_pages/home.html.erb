@@ -1,2 +1,89 @@
-<h1>StaticPages#home</h1>
-<p>Find me in app/views/static_pages/home.html.erb</p>
+<%= javascript_include_tag 'mikan.js' %>
+
+<script type="text/javascript">
+  $(function () {
+      var statistics = new Statistics();
+
+      var mainScene = document.getElementById('mainScene');
+      var itemQueue = document.getElementById('itemQueue');
+
+      // creates a custom ResourceManager for Rails
+      var resourceManager = new ResourceManager();
+      Properties.override(resourceManager, 'loadImage', function (url) {
+          switch (url) {
+          case 'imgs/mikan.png':
+              return this.loadImage._super('<%= image_path('mikan.png') %>');
+          case 'imgs/preservative.png':
+              return this.loadImage._super('<%= image_path('preservative.png') %>');
+          case 'imgs/spray.png':
+              return this.loadImage._super('<%= image_path('spray.png') %>');
+          }
+      });
+
+      // uses TouchGamePad if touch events are supported
+      if ('ontouchstart' in document.documentElement) {
+          console.debug('using TouchGamePad');
+          TouchGamePad.attachTo(mainScene);
+      } else {
+          console.debug('using KeyGamePad');
+          KeyGamePad.attachTo(mainScene, document);
+      }
+
+      var game = Game.start(mainScene,
+                            itemQueue,
+                            resourceManager,
+                            statistics,
+                            new Difficulty(statistics));
+
+      function ViewModel() {
+          var self = this;
+
+          self.score = ko.observable(statistics.score);
+          self.level = ko.observable(statistics.level + 1);
+
+          statistics.addObserver(function (id) {
+              switch (id) {
+              case 'scoreUpdated':
+                  self.score(statistics.score);
+                  break;
+              case 'levelUpdated':
+                  self.level(statistics.level + 1);
+                  break;
+              case 'statisticsReset':
+                  self.score(statistics.score);
+                  self.level(statistics.level + 1);
+                  break;
+              }
+          });
+
+          self.restart = function () {
+              statistics.reset();
+              game.restart();
+          };
+      }
+
+      ko.applyBindings(new ViewModel());
+  });
+</script>
+
+<div>
+  <span style="float: left">Score: </span>
+  <span style="float: left; width: 5em; text-align: right"
+        data-bind="text: score"></span>
+  <span style="float: left; margin-left: 1em">Level: </span>
+  <span style="float: left; width: 2em; text-align: right"
+        data-bind="text: level"></span>
+</div>
+<div style="clear: both">
+  <canvas id="mainScene"
+          style="float: left; background-color: #403010">
+  </canvas>
+  <div style="float: left; margin-left: 1em">
+    <canvas id="itemQueue" style="background-color: #403010">
+    </canvas>
+    <p>Next</p>
+  </div>
+</div>
+<div style="clear: both">
+  <button data-bind="click: restart">Restart</button>
+</div>
