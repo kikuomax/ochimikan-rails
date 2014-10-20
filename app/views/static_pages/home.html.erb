@@ -1,5 +1,14 @@
 <%= javascript_include_tag 'mikan.js' %>
 
+<style type="text/css">
+  .ui-widget {
+    font-size: 100%
+  }
+  #how-to-play-dialog table {
+    font-size: 80%
+  }
+</style>
+
 <script type="text/javascript">
   $(function () {
       var statistics = new Statistics();
@@ -60,8 +69,18 @@
               statistics.reset();
               game.restart();
           };
+          self.showHowToPlay = function () {
+              $('#how-to-play-dialog').dialog('open');
+          };
       }
 
+      // initializes the "How to Play" dialog
+      $('#how-to-play-dialog').dialog({
+          modal:    true,
+          autoOpen: false
+      });
+
+      // initializes the view model
       ko.applyBindings(new ViewModel());
   });
 </script>
@@ -86,4 +105,24 @@
 </div>
 <div style="clear: both">
   <button data-bind="click: restart">Restart</button>
+  <a href="#" data-bind="click: showHowToPlay" style="margin-left: 2em">How to Play</a>
+</div>
+<!-- How to Play dialog -->
+<div id="how-to-play-dialog" title="How to Play">
+  <h4>Touch Enabled Devices</h4>
+  <table>
+    <tr><td>Left Swipe</td><td>Move Left</td></tr>
+    <tr><td>Right Swipe</td><td>Move Right</td></tr>
+    <tr><td>Down Swipe</td><td>Move Clockwise</td></tr>
+    <tr><td>Up Swipe</td><td>Rotate Counterclockwise</td></tr>
+    <tr><td>Tap</td><td>Drop Quickly</td></tr>
+  </table>
+  <h4>Other PCs</h4>
+  <table>
+    <tr><td>Left Arrow</td><td>Move Left</td></tr>
+    <tr><td>Right Arrow</td><td>Move Right</td></tr>
+    <tr><td>Down Arrow</td><td>Move Clockwise</td></tr>
+    <tr><td>Up Arrow</td><td>Rotate Counterclockwise</td></tr>
+    <tr><td>Spacebar</td><td>Drop Quickly</td></tr>
+  </table>
 </div>
