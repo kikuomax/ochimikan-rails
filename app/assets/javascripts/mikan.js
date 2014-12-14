@@ -3188,6 +3188,425 @@ Difficulty = (function () {
 	return Difficulty;
 })();
 /**
+ * An entry in a score database.
+ *
+ * The `date` of the `Score` will be set to the current date.
+ *
+ * Throws an exception,
+ *  - if `value` is not a number,
+ *  - or if `level` is not a number,
+ *  - or if `player` is not a string,
+ *  - or if `value < 0`,
+ *  - or if `level < 0`.
+ *
+ * @class Score
+ * @constructor
+ * @param value {number}
+ *     The value of the score.
+ * @param level {number}
+ *     The level at which the score was achieved.
+ * @param player {string}
+ *     The player who achieved the score.
+*/
+Score = (function () {
+	function Score(value, level, player) {
+		var self = this;
+
+		// verifies arguments
+		if (typeof value !== 'number') {
+			throw new Error('value must be a number');
+		}
+		if (typeof level !== 'number') {
+			throw new Error('level must be a number');
+		}
+		if (typeof player !== 'string') {
+			throw new Error('player must be a string');
+		}
+		if (value < 0) {
+			throw new Error('value must be >= 0');
+		}
+		if (level < 0) {
+			throw new Error('level must be >= 0');
+		}
+
+		/**
+		 * The value of this score.
+		 *
+		 * @property value
+		 * @type number
+		 */
+		self.value = value;
+
+		/**
+		 * The level at which this score was achieved.
+		 *
+		 * @property level
+		 * @type number
+		 */
+		self.level = level;
+
+		/**
+		 * The player who achieved this score.
+		 *
+		 * @property player
+		 * @type string
+		 */
+		self.player = player;
+
+		/**
+		 * The date when this score was achieved.
+		 *
+		 * The number of seconds since January 1, 1970, 00:00:00 GMT.
+		 *
+		 * @property date
+		 * @type number
+		 */
+		self.date = Math.floor(new Date().getTime() / 1000.0);
+	}
+
+	/**
+	 * Returns whether a specified object is a `Score`.
+	 *
+	 * A `Score` must have all of the following properties,
+	 *  - value:      number
+	 *  - level:      number
+	 *  - player:     string
+	 *  - date:       number
+	 *  - dateObject: function
+	 *
+	 * @method isClassOf
+	 * @static
+	 * @param obj {object}
+	 *     The object to be tested.
+	 * @return {boolean}
+	 *     Whether `obj` is a `Score`. `false` if `obj` is not specified.
+	 */
+	Score.isClassOf = function (obj) {
+		return obj != null
+			&& typeof obj.value      === 'number'
+			&& typeof obj.level      === 'number'
+			&& typeof obj.player     === 'string'
+			&& typeof obj.date       === 'number'
+			&& typeof obj.dateObject === 'function';
+	};
+
+	/**
+	 * Returns whether a specified object can be a `Score`.
+	 *
+	 * An object which has all of the following properties can be a `Score`,
+	 *  - value:  number
+	 *  - level:  number
+	 *  - player: string
+	 *  - date:   number
+	 *
+	 * @method canAugment
+	 * @static
+	 * @param obj {object}
+	 *     The object to be tested.
+	 * @return {boolean}
+	 *     Whether `obj` can be a `Score`. `false` if `obj` is not specified.
+	 */
+	Score.canAugment = function (obj) {
+		return obj != null
+			&& typeof obj.value  === 'number'
+			&& typeof obj.level  === 'number'
+			&& typeof obj.player === 'string'
+			&& typeof obj.date   === 'number';
+	};
+
+	/**
+	 * Augments a specified object with the features of the `Score`.
+	 *
+	 * NOTE: never checks if `obj` can actually be a `Score`, because this
+	 *       method may be applied to an incomplete object; i.e., a prototype.
+	 *
+	 * Throws an exception if `obj` is not specified.
+	 *
+	 * @method augment
+	 * @static
+	 * @param obj {object}
+	 *     The object to be augmented.
+	 * @return {Score}
+	 *     `obj`.
+	 */
+	Score.augment = function (obj) {
+		for (prop in Score.prototype) {
+			obj[prop] = Score.prototype[prop];
+		}
+		return obj;
+	};
+
+	/**
+	 * Returns the date as a `Date` object.
+	 *
+	 * @method dateObject
+	 * @return {Date}
+	 *     A `Date` when this score was achieved.
+	 */
+	Score.prototype.dateObject = function () {
+		return new Date(this.date * 1000);
+	};
+
+	return Score;
+})();
+/**
+ * A list of `Score`s.
+ *
+ * Initializes an empty list.
+ *
+ * @class ScoreList
+ * @constructor
+ */
+ScoreList = (function () {
+	function ScoreList() {
+		/**
+		 * The array of scores in this `ScoreList`.
+		 *
+		 * DO NOT manipulate this property.
+		 * Use `scoreCount` and `scoreAt` instead.
+		 *
+		 * @property scores
+		 * @type array{Score}
+		 * @protected
+		 */
+		this.scores = [];
+	}
+
+	/**
+	 * Returns whether a specified object is a `ScoreList`.
+	 *
+	 * A `ScoreList` must have all of the following properties,
+	 *  - scoreCount: function
+	 *  - scoreAt:    function
+	 *
+	 * @method isClassOf
+	 * @static
+	 * @param obj {object}
+	 *     The object to be tested.
+	 * @return {boolean}
+	 *     Whether `obj` is a `ScoreList`. `false` if `obj` is not specified.
+	 */
+	ScoreList.isClassOf = function (obj) {
+		return obj != null
+			&& typeof obj.scoreCount === 'function'
+			&& typeof obj.scoreAt    === 'function';
+	};
+
+	/**
+	 * Returns whether a specified object can be a `ScoreList`.
+	 *
+	 * An object which satisfies all of the following conditions can be
+	 * a `ScoreList`,
+	 *  - Has an array `scores`
+	 *  - `scores` is empty or every element in it can be a `Score`
+	 *
+	 * @method canAugment
+	 * @static
+	 * @param obj {object}
+	 *     The object to be tested.
+	 * @return {boolean}
+	 *     Whether `obj` can be a `ScoreList`.
+	 *     `false` is `obj` is not specified.
+	 */
+	ScoreList.canAugment = function (obj) {
+		return obj != null
+			&& Array.isArray(obj.scores)
+			&& obj.scores.reduce(function (b, e) {
+				return b && Score.canAugment(e);
+			}, true);
+	};
+
+	/**
+	 * Augments a specified object with the features of the `ScoreList`.
+	 *
+	 * If `obj` has an array `scores`, every element in it will be augmented by
+	 * the `Score`.
+	 *
+	 * NOTE: never tests if `obj` can actually be a `ScoreList` because this
+	 *       method can be applied to an incomplete object; i.e., a prototype.
+	 *
+	 * Throws an exception,
+	 *  - if `obj` is not specified,
+	 *  - or if `obj` has a non-empty array `scores`, but it contains `null` or
+	 *    `undefined`.
+	 *
+	 * @method augment
+	 * @static
+	 * @param obj {object}
+	 *     The object to be augmented.
+	 * @return {object}
+	 *     `obj`
+	 */
+	ScoreList.augment = function (obj) {
+		for (prop in ScoreList.prototype) {
+			obj[prop] = ScoreList.prototype[prop];
+		}
+		if (Array.isArray(obj.scores)) {
+			obj.scores.forEach(function (e) {
+				Score.augment(e);
+			});
+		}
+		return obj;
+	};
+
+	/**
+	 * Returns the number of scores in this `ScoreList`.
+	 *
+	 * @method scoreCount
+	 * @return {number}
+	 *     The number of scores in this `ScoreList`.
+	 */
+	ScoreList.prototype.scoreCount = function () {
+		return this.scores.length;
+	};
+
+	/**
+	 * Returns a score at a specified index in this `ScoreList`.
+	 *
+	 * @method scoreAt
+	 * @param index {number}
+	 *     The index of score.
+	 * @return {Score}
+	 *     The score at `index`.
+	 *     `undefined` if `index < 0` or `index >= this.scoreCount()`.
+	 */
+	ScoreList.prototype.scoreAt = function (index) {
+		return this.scores[index];
+	};
+
+	return ScoreList;
+})();
+/**
+ * Provides connection to a score database.
+ *
+ * Throws an exception if `baseUri` is not a string.
+ *
+ * Promise
+ * -------
+ *
+ * {{#crossLink "RecordBase/requestScores:method"}}{{/crossLink}} and
+ * {{#crossLink "RecordBase/registerScore:method"}}{{/crossLink}} will be
+ * performed asynchronously and return a `Promise`.
+ *
+ * If the request has succeeded, `done` will be invoked with the following
+ * argument,
+ *  1. A {{#crossLink "ScoreList"}}{{/crossLink}}
+ *
+ * If the request has failed, `fail` will be invoked with the following
+ * argument,
+ *  1. An object which represents an error
+ *
+ * @class RecordBase
+ * @constructor
+ * @param baseUri {string}
+ *     The URI of the database.
+ */
+RecordBase = (function () {
+	function RecordBase(baseUri) {
+		var self = this;
+
+		if (typeof baseUri !== 'string') {
+			throw new Error('baseUri must be a string');
+		}
+
+		/**
+		 * Requests the list of scores in the database.
+		 *
+		 * The top 10 scores will be requested.
+		 *
+		 * @method requestScores
+		 * @return {Promise}
+		 *     A promise object to obtain the results of the request.
+		 */
+		self.requestScores = function () {
+			var request = $.Deferred();
+			$.get(baseUri + '/record?from=0&to=10')
+				.done(forwardScoreListTo(request))
+				.fail(function (_, x, error) {
+					request.reject(error);
+				});
+			return request.promise();
+		};
+
+		/**
+		 * Registers a specified score to the database.
+		 *
+		 * Throws an exception if `score` is not
+		 * a {{#crossLink "Score"}}{{/crossLink}}.
+		 *
+		 * @method registerScore
+		 * @param score {Score}
+		 *     The score to be registered.
+		 * @return {Promise}
+		 *     A promise object to obtain the results of the request.
+		 */
+		self.registerScore = function (score) {
+			if (!Score.isClassOf(score)) {
+				throw new Error('score must be a Score');
+			}
+			// the request will be resolved in 2 steps; authentication and post
+			var request = $.Deferred();
+			// an access token will be obtained by authentication
+			$.ajax({
+				url: baseUri + '/authenticate',
+				headers: {
+					'Authorization': 'Basic ' + btoa('guest:mikan')
+				}
+			}).done(function (tokenJson) {
+				// posts the score with the access token
+				$.ajax({
+					url: baseUri + '/record?from=0&to=10',
+					type: 'POST',
+					headers: {
+						'Authorization': 'Bearer ' + tokenJson.token
+					},
+					contentType: 'application/json',
+					data: JSON.stringify({
+						value:  score.value,
+						level:  score.level,
+						player: score.player,
+						date:   score.date
+					})
+				}).done(
+					forwardScoreListTo(request)
+				).fail(function (_, _, error) {
+					request.reject(error);
+				});
+			}).fail(function (_, _, error) {
+				request.reject(error);
+			});
+			return request.promise();
+		};
+
+		/**
+		 * Returns a function which forwards a `ScoreList` returned from
+		 * the server to a specified `Deferred`.
+		 *
+		 * @method forwardScoreListTo
+		 * @param deferred {Deferred}
+		 *     The `Deferred` which processes a `ScoreList`.
+		 * @return {function}
+		 *     A callback function which accepts a response object.
+		 */
+		function forwardScoreListTo(deferred) {
+			return function (scoresJson) {
+				try {
+					// scoresJson must be a ScoreList
+					if (!ScoreList.canAugment(scoresJson)) {
+						throw new Error('Invalid response from server: '
+										+ scoreJson);
+					}
+					deferred.resolve(ScoreList.augment(scoresJson));
+				} catch (err) {
+					deferred.reject(err);
+				}
+			};
+		}
+	}
+
+	return RecordBase;
+})();
+/**
  * The main scene of the game.
  *
  * `canvas` will be resized so that it fits the `MainScene`.
@@ -3200,10 +3619,24 @@ Difficulty = (function () {
  *  - or if `statistics` is not a `Statistics`,
  *  - or if `difficulty` is not a `Difficulty`
  *
+ * Events
+ * ------
+ *
+ * A `MainScene` will notify events to its observers. Observers will receive
+ * at least the following arguments,
+ *  1. Event ID: A string which tells the event type
+ *  2. The instance of `MainScene`
+ *
+ * An event ID will be one of the following,
+ *  - "gameEnded":
+ *    Notified when the game has ended.
+ *    Observers will receive no additional arguments.
+ *
  * @class MainScene
  * @contructor
  * @extends ActorScheduler
  * @uses DirectionListener
+ * @uses Observable
  * @param canvas {Element, GamePad}
  *     The canvas element on which the `MainScene` is to be rendered.
  *     This must be a `GamePad` at the same time.
@@ -3217,6 +3650,7 @@ MainScene = (function () {
 		var self = this;
 
 		ActorScheduler.call(self);
+		Observable.call(self);
 
 		// verifies the arguments
 		if (!(canvas instanceof Element)) {
@@ -3273,7 +3707,7 @@ MainScene = (function () {
 				self.schedule(spawner);
 			} else {
 				// game over
-				alert('Game Over');
+				self.notifyObservers('gameEnded', self);
 			}
 		});
 
@@ -3609,6 +4043,7 @@ MainScene = (function () {
 		}
 	}
 	ActorScheduler.augment(MainScene.prototype);
+	Observable.augment(MainScene.prototype);
 
 	/**
 	 * The number of columns in a mikan box.
@@ -3815,13 +4250,13 @@ ItemQueue = (function () {
  *
  *  1. A `MainScene` is presented.
  *  2. The `MainScene` presents a `MikanBox`.
- *  3. A user can see which items will be dropped in an `ItemQueue`.
+ *  3. A player can see which items will be dropped in an `ItemQueue`.
  *  4. Two grabbed items appear at the top of the `MikanBox`. They can be any
  *     combination of the followings,
  *      - A randomly damaged mikan
  *      - A preservative
  *  5. The grabbed items fall toward the bottom of the `MikanBox` (ground).
- *     The user can control the grabbed items during they are falling.
+ *     The player can control the grabbed items during they are falling.
  *  6. The grabbed items stop falling when either of them reaches the ground
  *     or a fixed item.
  *  7. The grabbed items become free.
@@ -3833,6 +4268,13 @@ ItemQueue = (function () {
  *  11. Back to the step 3.
  *
  * #### Derivative
+ *
+ *  - 4 Stacked items have reached the top of the `MikanBox`.
+ *       1. The game ends.
+ *       2. The player is prompted to enter his/her name and choose if his/her
+ *          score is sent to the server.
+ *       3. The player can see the rank of his/her score.
+ *       4. END
  *
  *  - 10 Some of the chains reaches or exceeds the limit length (active chains).
  *       1. Mikans composing the active chains explode and disappear.
@@ -3846,11 +4288,31 @@ ItemQueue = (function () {
  *       6. Items not placed on the ground or fixed items become free.
  *       7. Back to the step 7 of the main scenario.
  *
+ * Events
+ * ------
+ *
+ * A `Game` notifies events to its observers. Observers will receive at least
+ * the following arguments,
+ *  1. Event ID: A string which tells the event type
+ *  2. The instance of `Game`
+ *
+ * An event ID can be one of the following,
+ *  - "gameEnded":
+ *    Notified when the game has ended.
+ *    Observers will receive the following additional argument,
+ *     1. Statistics of the last game
+ *
  * @class Game
  * @constructor
+ * @extends Observable
  */
 Game = (function () {
-	function Game() {}
+	function Game() {
+		var self = this;
+
+		Observable.call(self);
+	}
+	Observable.augment(Game.prototype);
 
 	/**
 	 * Starts the game.
@@ -3910,6 +4372,11 @@ Game = (function () {
 		Resources.loadSprites(resourceManager);
 		// creates a MainScene associated with `mainScene`
 		game.mainScene = new MainScene(mainScene, statistics, difficulty);
+		game.mainScene.addObserver(function (id) {
+			if (id == 'gameEnded') {
+				game.notifyObservers('gameEnded', game, statistics);
+			}
+		});
 		// creates an ItemQueue associated with `itemQueue`
 		game.itemQueue = new ItemQueue(itemQueue, 4, difficulty);
 		// runs the game loop
