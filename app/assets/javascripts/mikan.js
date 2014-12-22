@@ -1,4 +1,15 @@
 /**
+ * Returns the version of OchiMikan.
+ *
+ * @method getOchiMikanVersion
+ * @static
+ * @return {string}
+ *     The version of this OchiMikan.
+ */
+function getOchiMikanVersion() {
+	return '0.0.2';
+}
+/**
  * Provides variants of binary search.
  *
  * @class Search
@@ -130,6 +141,7 @@ Search = (function () {
 
 	return Search;
 })();
+
 /**
  * Provides utilities to manipulate properties.
  *
@@ -188,6 +200,7 @@ Properties = (function () {
 
 	return Properties;
 })();
+
 /**
  * The interface of an observable object.
  *
@@ -329,6 +342,7 @@ Observable = (function () {
 
 	return Observable;
 })();
+
 /**
  * A resource manager.
  *
@@ -441,6 +455,7 @@ ResourceManager = (function () {
 
 	return ResourceManager;
 })();
+
 /**
  * A sprite which renders a specified part of an image.
  *
@@ -555,6 +570,7 @@ Sprite = (function () {
 
 	return Sprite;
 })();
+
 /**
  * Provides resources used in the game.
  *
@@ -622,6 +638,7 @@ Resources = (function () {
 
 	return Resources;
 })();
+
 /**
  * The interface of an interpreter of user inputs.
  *
@@ -806,6 +823,7 @@ DirectionListener = (function () {
 
 	return DirectionListener;
 })();
+
 /**
  * An actor.
  *
@@ -939,6 +957,7 @@ Actor = (function () {
 
 	return Actor;
 })();
+
 /**
  * An actor scheduler.
  *
@@ -1107,6 +1126,7 @@ ActorScheduler = (function () {
 
 	return ActorScheduler;
 })();
+
 /**
  * The interface of a renderable object.
  *
@@ -1196,6 +1216,7 @@ Renderable = (function () {
 
 	return Renderable;
 })();
+
 /**
  * A located object which has a location (`x`, `y`).
  *
@@ -1350,6 +1371,7 @@ Located = (function () {
 
 	return Located;
 })();
+
 /**
  * The interface of an item placed in a `MikanBox`.
  *
@@ -1579,6 +1601,7 @@ Item = (function () {
 
 	return Item;
 })();
+
 /**
  * Defines priorities of actors.
  *
@@ -1653,6 +1676,7 @@ const ActorPriorities = {
      */
     SPAWN: 7
 };
+
 /**
  * A mikan.
  *
@@ -1716,6 +1740,7 @@ Mikan = (function () {
 
 	return Mikan;
 })();
+
 /**
  * A spray.
  *
@@ -1868,6 +1893,7 @@ Spray = (function () {
 
 	return Spray;
 })();
+
 /**
  * The class of a preservative.
  *
@@ -1928,6 +1954,7 @@ Preservative = (function () {
 
 	return Preservative;
 })();
+
 /**
  * A mikan box.
  *
@@ -2721,6 +2748,7 @@ MikanBox = (function () {
 
 	return MikanBox;
 })();
+
 /**
  * Records statistics of the game.
  *
@@ -3015,6 +3043,7 @@ Statistics = (function () {
 
 	return Statistics;
 })();
+
 /**
  * The interface which controls the difficulty of the game.
  *
@@ -3187,6 +3216,7 @@ Difficulty = (function () {
 
 	return Difficulty;
 })();
+
 /**
  * An entry in a score database.
  *
@@ -3349,6 +3379,7 @@ Score = (function () {
 
 	return Score;
 })();
+
 /**
  * A list of `Score`s.
  *
@@ -3476,6 +3507,7 @@ ScoreList = (function () {
 
 	return ScoreList;
 })();
+
 /**
  * Provides connection to a score database.
  *
@@ -3606,6 +3638,7 @@ RecordBase = (function () {
 
 	return RecordBase;
 })();
+
 /**
  * The main scene of the game.
  *
@@ -4091,6 +4124,7 @@ MainScene = (function () {
 
 	return MainScene;
 })();
+
 /**
  * A canvas which renders queued items.
  *
@@ -4240,6 +4274,7 @@ ItemQueue = (function () {
 
 	return ItemQueue;
 })();
+
 /**
  * The instance of the game.
  *
@@ -4407,6 +4442,7 @@ Game = (function () {
 
 	return Game;
 })();
+
 /**
  * A `GamePad` implemented for touch events.
  *
@@ -4599,6 +4635,7 @@ TouchGamePad = (function () {
 
 	return TouchGamePad;
 })();
+
 /**
  * A `GamePad` implemented for key inputs.
  *
